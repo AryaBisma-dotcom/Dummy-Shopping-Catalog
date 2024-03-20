@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./App.css";
 import { Table, Button, notification } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
 
 function App() {
-  const [productList, setProductList] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
+  const [productList, setProductList] = React.useState([]);
+  const [cartCount, setCartCount] = React.useState(0);
   const [api, contextHolder] = notification.useNotification();
+  const [loadingBtn, setLoadingBtn] = React.useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((response) => response.json())
       .then((data) => setProductList(data));
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (cartCount > 0 && cartCount % 5 === 0) {
       alert("Selamat anda mendapatkan diskon 100%");
     }
@@ -23,9 +24,13 @@ function App() {
   const cart = "Cart";
 
   const handleAddToCart = (productId) => {
-    setCartCount((prevCount) => prevCount + 1);
-    console.log(`Added Product ${productId}`);
-    openNotification();
+    setLoadingBtn(productId);
+    setTimeout(() => {
+      setLoadingBtn(false);
+      setCartCount((prevCount) => prevCount + 1);
+      openNotification();
+      console.log(`Added ${productId}`);
+    }, 1000);
   };
 
   const openNotification = () => {
@@ -87,8 +92,13 @@ function App() {
       dataIndex: "id",
       key: "action",
       render: (id) => (
-        <Button type="primary" onClick={() => handleAddToCart(id)}>
-          Add to Cart
+        <Button
+          type="primary"
+          onClick={() => handleAddToCart(id)}
+          loading={loadingBtn === id}
+          icon={loadingBtn === id ? <SmileOutlined spin /> : null}
+        >
+          {loadingBtn === id ? "Adding..." : "Add to Cart"}
         </Button>
       ),
     },
