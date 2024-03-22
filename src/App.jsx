@@ -1,32 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
-import { Table, Button, notification } from "antd";
+import { Table, Button, notification, Alert } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
+import Marquee from "react-fast-marquee";
 
 function App() {
-  const [productList, setProductList] = React.useState([]);
-  const [cartCount, setCartCount] = React.useState(0);
+  const [productList, setProductList] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
   const [api, contextHolder] = notification.useNotification();
-  const [loadingBtn, setLoadingBtn] = React.useState(false);
+  const [loadingBtns, setLoadingBtns] = useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((response) => response.json())
       .then((data) => setProductList(data));
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (cartCount > 0 && cartCount % 5 === 0) {
-      alert("Selamat anda mendapatkan diskon 100%");
+      discountNotification();
     }
   }, [cartCount]);
 
   const cart = "Cart";
 
   const handleAddToCart = (productId) => {
-    setLoadingBtn(productId);
+    setLoadingBtns((prevLoadingBtns) => ({
+      ...prevLoadingBtns,
+      [productId]: true,
+    }));
+
     setTimeout(() => {
-      setLoadingBtn(false);
+      setLoadingBtns((prevLoadingBtns) => ({
+        ...prevLoadingBtns,
+        [productId]: false,
+      }));
       setCartCount((prevCount) => prevCount + 1);
       openNotification();
       console.log(`Added ${productId}`);
@@ -42,6 +50,24 @@ function App() {
           style={{
             color: "#108ee9",
           }}
+        />
+      ),
+    });
+  };
+
+  const discountNotification = () => {
+    notification.open({
+      message: "Congratulations!",
+      description: (
+        <Alert
+          message="Informational Notes"
+          description={
+            <Marquee pauseOnHover>
+              SELAMAT ANDA MENDAPATKAN DISKON SEBESAR 100%
+            </Marquee>
+          }
+          type="info"
+          showIcon
         />
       ),
     });
@@ -95,10 +121,9 @@ function App() {
         <Button
           type="primary"
           onClick={() => handleAddToCart(id)}
-          loading={loadingBtn === id}
-          icon={loadingBtn === id ? <SmileOutlined spin /> : null}
+          loading={loadingBtns[id]}
         >
-          {loadingBtn === id ? "Adding..." : "Add to Cart"}
+          {loadingBtns[id] ? "Adding..." : "Add to Cart"}
         </Button>
       ),
     },
