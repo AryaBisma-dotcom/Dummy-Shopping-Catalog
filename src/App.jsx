@@ -57,10 +57,10 @@ function App() {
 
   const discountNotification = () => {
     notification.open({
-      message: "Congratulations!",
+      message: "Selamat!",
       description: (
         <Alert
-          message="Informational Notes"
+          message="Pengumumuman Diskon!"
           description={
             <Marquee pauseOnHover>
               SELAMAT ANDA MENDAPATKAN DISKON SEBESAR 100%
